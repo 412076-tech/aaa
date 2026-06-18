@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbyFAKSMtaULx1kn1jysHK7ZqWah4XmCAhsQ2ps_FOh4ROLndw80bCipWtblIv_Dbsdb/exec';
+const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbyRDKrQokl2qkdsRcXCvUY33vT2TNmAbqscG4GIzRoFsnvBUT8vz91jxoOIyXcHHpwW/exec';
 
 // 测试连接
 function testConnection() {
