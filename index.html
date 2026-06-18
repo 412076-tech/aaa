@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>記帳系統</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>記帳系統</h1>
+    <form id="entryForm">
+      <label>
+        時間
+        <input type="datetime-local" id="datetime" name="datetime" required />
+      </label>
+      <label>
+        金額
+        <input type="number" id="amount" name="amount" min="0" step="1" required />
+      </label>
+      <label>
+        項目
+        <div class="category-row">
+          <select id="category" name="category" required>
+            <option value="" disabled selected>請選擇項目</option>
+          </select>
+          <button type="button" id="addCategoryBtn" class="small-button">新增項目</button>
+        </div>
+      </label>
+      <label>
+        備註
+        <input type="text" id="note" name="note" placeholder="可輸入說明" />
+      </label>
+      <div class="button-row">
+        <button type="button" id="autoFillBtn">自動填入</button>
+        <button type="submit">送出記帳</button>
+      </div>
+    </form>
+    <div id="status" class="status"></div>
+    <section class="stats-panel">
+      <div class="stats-header">
+        <h2>本月分類統計</h2>
+        <button type="button" id="refreshStatsBtn">更新統計</button>
+      </div>
+      <canvas id="statsChart" width="360" height="360"></canvas>
+      <div id="statsLegend" class="stats-legend"></div>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
