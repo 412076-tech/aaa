@@ -19,6 +19,7 @@ const form = document.getElementById('entryForm');
 const autoFillBtn = document.getElementById('autoFillBtn');
 const addCategoryBtn = document.getElementById('addCategoryBtn');
 const refreshStatsBtn = document.getElementById('refreshStatsBtn');
+const monthSelector = document.getElementById('monthSelector');
 const statusBox = document.getElementById('status');
 const categorySelect = document.getElementById('category');
 const datetimeInput = document.getElementById('datetime');
@@ -37,7 +38,7 @@ function setStatus(message, type = '') {
 
 function setDatetimeNow() {
   const now = new Date();
-  const formatted = now.toISOString().slice(0, 16);
+  const formatted = now.toISOString().slice(0, 10);
   datetimeInput.value = formatted;
 }
 
@@ -78,16 +79,23 @@ function populateForm(data) {
   document.getElementById('note').value = data.note || '';
 }
 
-function drawPieChart(stats) {
+function drawPieChart(stats, yearMonth) {
   const ctx = chartContext;
   ctx.clearRect(0, 0, statsChart.width, statsChart.height);
   statsLegend.innerHTML = '';
+
+  // 格式化月份文字
+  let monthText = '本月';
+  if (yearMonth) {
+    const [year, month] = yearMonth.split('-');
+    monthText = `${year}年${month}月`;
+  }
 
   if (!stats || stats.length === 0) {
     ctx.font = '16px sans-serif';
     ctx.fillStyle = '#6b7280';
     ctx.textAlign = 'center';
-    ctx.fillText('本月尚無資料', statsChart.width / 2, statsChart.height / 2);
+    ctx.fillText(`${monthText}尚無資料`, statsChart.width / 2, statsChart.height / 2);
     return;
   }
 
@@ -136,10 +144,29 @@ function apiRequest(action, method = 'GET', body = {}) {
 }
 
 function refreshStats() {
-  apiRequest('getMonthlyStats')
-    .then((data) => drawPieChart(data))
+  const yearMonth = monthSelector && monthSelector.value ? monthSelector.value : '';
+  console.log('[refreshStats] monthSelector:', monthSelector);
+  console.log('[refreshStats] 選擇的月份值：', yearMonth);
+  
+  let url = `${API_BASE_URL}?action=getMonthlyStats`;
+  if (yearMonth) {
+    url += `&yearMonth=${encodeURIComponent(yearMonth)}`;
+  }
+  
+  console.log('[refreshStats] 完整請求 URL：', url);
+  
+  fetch(url, { method: 'GET', mode: 'cors' })
+    .then(async (response) => {
+      console.log('[refreshStats] 回應狀態:', response.status);
+      const payload = await response.json();
+      console.log('[refreshStats] 回應數據:', payload);
+      if (!response.ok || payload.error) {
+        throw new Error(payload.error || 'API 呼叫失敗');
+      }
+      drawPieChart(payload, yearMonth);
+    })
     .catch((error) => {
-      console.error(error);
+      console.error('[refreshStats] 錯誤:', error);
       setStatus('無法取得統計資料。', 'error');
     });
 }
@@ -195,6 +222,17 @@ function handleAddCategory() {
 function initialize() {
   console.log('[初始化] 應用程式啟動');
   setDatetimeNow();
+  
+  if (monthSelector) {
+    const now = new Date();
+    const currentYearMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    monthSelector.value = currentYearMonth;
+    console.log('[初始化] 月份選擇器設定為：', currentYearMonth);
+  } else {
+    console.warn('[初始化] monthSelector 元素未找到!');
+    return;
+  }
+  
   testConnection();  // 先測試連接
   
   setTimeout(() => {
@@ -214,5 +252,15 @@ function initialize() {
 autoFillBtn.addEventListener('click', handleAutoFill);
 addCategoryBtn.addEventListener('click', handleAddCategory);
 refreshStatsBtn.addEventListener('click', refreshStats);
+
+if (monthSelector) {
+  monthSelector.addEventListener('change', () => {
+    console.log('[事件] 月份選擇器改變，調用 refreshStats');
+    refreshStats();
+  });
+} else {
+  console.warn('[警告] monthSelector 元素未找到，無法綁定月份改變事件');
+}
+
 form.addEventListener('submit', handleSubmit);
 window.addEventListener('DOMContentLoaded', initialize);

@@ -12,7 +12,7 @@
     <form id="entryForm">
       <label>
         時間
-        <input type="datetime-local" id="datetime" name="datetime" required />
+        <input type="date" id="datetime" name="datetime" required />
       </label>
       <label>
         金額
@@ -39,7 +39,13 @@
     <div id="status" class="status"></div>
     <section class="stats-panel">
       <div class="stats-header">
-        <h2>本月分類統計</h2>
+        <h2>分類統計</h2>
+        <div class="month-selector">
+          <label>
+            選擇月份
+            <input type="month" id="monthSelector" />
+          </label>
+        </div>
         <button type="button" id="refreshStatsBtn">更新統計</button>
       </div>
       <canvas id="statsChart" width="360" height="360"></canvas>
